@@ -27,7 +27,7 @@ private:
                     if(insideSentry) {
                         insideSentry = false;
                     }
-                    else if(_flagMatrix[i][j+1] == 0) {
+                    else if(_flagMatrix[i][j+1] == 0 && (_flagMatrix[i][j-1] == 0 || j==0 )) {
                         insideSentry = true;
                     }
                     else {
@@ -138,12 +138,23 @@ public:
         imni::set_matrix_row(_flagMatrix, _xsize-1, _ysize, 1);
 
     }
+    void ConvertToNeumann() {
+        for(int i=1;i<_xsize-1;i++) {
+            for(int j=0;j<_ysize;j++) {
+                _flagMatrix[i][j]*=2;
+            }
+        }
+        _flagMatrix[0][_ysize-1]*=2;
+        _flagMatrix[_xsize-1][_ysize-1]*=2;
+        _flagMatrix[_xsize-1][0]*=2;
+        _flagMatrix[0][0]*=2;
+    }
     void DrawObstacle(vector<Point>&vertices){
         for(int i=0;i<vertices.size()-1;i++){
             bhmLine(vertices[i].GetX(), vertices[i].GetY(), vertices[i+1].GetX(), vertices[i+1].GetY(), 1);
         }
         fillObstacle();
-        SetBorders();
+        //SetBorders();
         //PrintMatrixToFile("test.txt");
         //SaveFlagsMatrixToPNGFile("test1.png");
     }
