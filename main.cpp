@@ -4,6 +4,7 @@
 #include "FlagMatrix.h"
 #include "Relaxation.h"
 #include "RelaxationNeumann.h"
+#include "RelaxationDirichlet.h"
 
 using namespace std;
 
@@ -55,14 +56,16 @@ void zad1() {
     flagMatrix.DrawObstacle(obstacle1);
     flagMatrix.DrawObstacle(obstacle2);
     flagMatrix.SetBorders();
-    Relaxation relaxation = Relaxation(XSIZE,YSIZE,&flagMatrix, boundaryConditionDirichlet);
-    relaxation.NextIteration();
-    relaxation.NextIteration();
-    while(relaxation.GetTolerance()>=TOL) {
-        relaxation.NextIteration();
+    Relaxation * relaxation =  new RelaxationDirichlet(XSIZE, YSIZE, &flagMatrix, boundaryConditionDirichlet);
+    relaxation->NextIteration();
+    relaxation->NextIteration();
+    while(relaxation->GetTolerance()>=TOL) {
+        relaxation->NextIteration();
     }
-    cout  << relaxation.GetIteration();
-    relaxation.SaveResults();
+    cout  << relaxation->GetIteration();
+    relaxation->SaveResults();
+    delete relaxation;
+
 
 }
 void zad2() {
@@ -73,14 +76,15 @@ void zad2() {
     flagMatrix.DrawObstacle(obstacle2);
     flagMatrix.SetBorders();
     flagMatrix.ConvertToNeumann();
-    RelaxationNeumann relaxation = RelaxationNeumann(XSIZE,YSIZE,&flagMatrix, boundaryConditionNeumann);
-    relaxation.NextIteration();
-    relaxation.NextIteration();
-    while(relaxation.GetTolerance()>=TOL) {
-        relaxation.NextIteration();
+    Relaxation *  relaxation =  new RelaxationNeumann(XSIZE,YSIZE,&flagMatrix, boundaryConditionNeumann);
+    relaxation->NextIteration();
+    relaxation->NextIteration();
+    while(relaxation->GetTolerance()>=TOL) {
+        relaxation->NextIteration();
     }
-    cout  << relaxation.GetIteration();
-    relaxation.SaveResults();
+    cout  << relaxation->GetIteration();
+    relaxation->SaveResults();
+    delete relaxation;
 
 }
 

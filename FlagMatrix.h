@@ -131,6 +131,7 @@ public:
         _flagMatrix = imn<int>::matrix(_xsize, _ysize);
         imni::set_matrix(_flagMatrix, _xsize, _ysize, 0);
     }
+
     void SetBorders() {
         imni::set_matrix_col(_flagMatrix, 0, _xsize, 1);
         imni::set_matrix_col(_flagMatrix, _ysize-1, _xsize, 1);
@@ -138,6 +139,7 @@ public:
         imni::set_matrix_row(_flagMatrix, _xsize-1, _ysize, 1);
 
     }
+
     void ConvertToNeumann() {
         for(int i=1;i<_xsize-1;i++) {
             for(int j=0;j<_ysize;j++) {
@@ -149,18 +151,18 @@ public:
         _flagMatrix[_xsize-1][0]*=2;
         _flagMatrix[0][0]*=2;
     }
+
     void DrawObstacle(vector<Point>&vertices){
         for(int i=0;i<vertices.size()-1;i++){
             bhmLine(vertices[i].GetX(), vertices[i].GetY(), vertices[i+1].GetX(), vertices[i+1].GetY(), 1);
         }
         fillObstacle();
-        //SetBorders();
-        //PrintMatrixToFile("test.txt");
-        //SaveFlagsMatrixToPNGFile("test1.png");
     }
+
     void SaveFlagsMatrixToPNGFile(const char *fileName) {
         imni::plot_2d_system(fileName, _flagMatrix, _xsize, _ysize,  1, 1);
     }
+
     void PrintMatrixToFile(const char* fileName) {
         ofstream oFile;
         oFile.open (fileName);
@@ -172,6 +174,7 @@ public:
         }
         oFile.close();
     }
+
     int** GetMatrix() {
         return _flagMatrix;
     }

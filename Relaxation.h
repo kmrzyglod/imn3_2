@@ -8,9 +8,8 @@
 #include "FlagMatrix.h"
 #include "IntegralGraphPoint.h"
 
-
 class Relaxation {
-private:
+protected:
     double** _relaxationMatrix;
     vector<IntegralGraphPoint> _integralGraph;
     int _xsize, _ysize, _iter;
@@ -18,18 +17,9 @@ private:
     FlagMatrix* _flagMatrix;
     function < double(int x, int y) > _boundaryConditionFn;
 
+    Relaxation() {}
 
-    void makeRelaxation(){
-        for(int i=0;i<_xsize;i++) {
-            for(int j=0;j<_ysize;j++) {
-                if(_flagMatrix->GetMatrix()[i][j] == 0)
-                {
-                    _relaxationMatrix[i][j] = (_relaxationMatrix[i-1][j] + _relaxationMatrix[i][j-1]
-                                              + _relaxationMatrix[i+1][j] + _relaxationMatrix[i][j+1])/4.0;
-                }
-            }
-        }
-    }
+    virtual void makeRelaxation()  =  0;
 
     void calculateIntegral() {
         double integral = 0;
@@ -46,27 +36,29 @@ private:
         }
         _nowIntegral = 1.0/8.0 * integral;
     }
+
     void calculateTolerance() {
         _tolerance = fabs((_nowIntegral - _prevIntegral)/_prevIntegral);
     }
+
     void setBoundaryConditions() {
         for(int i=0;i<_xsize;i++) {
             for(int j=0;j<_ysize;j++) {
-                if(_flagMatrix->GetMatrix()[i][j] != 0)
+                if(_flagMatrix->GetMatrix()[i][j] == 1)
                 {
                     _relaxationMatrix[i][j] = _boundaryConditionFn(i, j);
                 }
             }
         }
     }
+
 public:
     Relaxation(int xsize, int ysize, FlagMatrix* flagMatrix,  function < double( int x, int y) > boundaryConditionFn):
             _xsize(xsize), _ysize(ysize), _flagMatrix(flagMatrix), _boundaryConditionFn(boundaryConditionFn) {
         _relaxationMatrix = imnd::matrix(_xsize, _ysize);
         Reset();
-        //PrintMatrixToFile("test.txt");
-        //SaveFlagsMatrixToPNGFile("test_conditions.png");
     }
+
     void Reset() {
         imnd::set_matrix(_relaxationMatrix, _xsize, _ysize, 0);
         _nowIntegral = 0;
@@ -74,6 +66,7 @@ public:
         _iter = 0;
         setBoundaryConditions();
     }
+
     void NextIteration() {
         makeRelaxation();
         calculateIntegral();
@@ -84,27 +77,20 @@ public:
         _prevIntegral = _nowIntegral;
         _iter++;
     }
+
     int GetIteration() {
         return _iter;
     }
+
     double GetTolerance() {
         return _tolerance;
     }
+
     void SaveFlagsMatrixToPNGFile(const char *fileName) {
         imnd::plot_2d_system(fileName, _relaxationMatrix, _xsize, _ysize,  1, 1);
     }
-    void SaveResults() {
-        imnd::plot_params.title = "Zad1. Przeplyw potencjalny";
-        imnd::plot_params.stype = GNUPLOT_CONTOUR | GNUPLOT_PM3D;
-        SaveFlagsMatrixToPNGFile("RelaxationZad1.png");
-        ofstream oFile;
-        oFile.open ("IntegralZad1.txt");
-        for(IntegralGraphPoint el:  _integralGraph) {
-                    oFile << el.GetX() << " " << el.GetY() << "\n";
-            }
-        oFile.close();
-        system("gnuplot integralZad1.plt");
-    }
+
+    virtual void SaveResults() = 0;
 
     void PrintMatrixToFile(const char* fileName) {
         ofstream oFile;
